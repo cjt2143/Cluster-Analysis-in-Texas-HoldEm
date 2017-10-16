@@ -1,0 +1,1063 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Sep 13 12:21:24 2017
+
+@author: Christopher
+"""
+import random
+import math
+import numpy
+
+def cardGenerator(x):
+    """x is amount of players, generates enough random numbers which correspond to individual cards in the deck without repeats so that
+    each player gets two cards plus 5 for the flop, turn, and river, returns the array of all of the cards"""
+    cardsNeeded = 2*x
+    cardsNeeded = cardsNeeded + 5
+  
+    hands = [0]*(cardsNeeded)
+  
+    i = 0
+    while i < (cardsNeeded):
+        card = math.floor(random.uniform(1,53))
+        j = 0
+        test = 0
+        for j in (0,i):
+            while (test != 1):
+                if (card == hands[j]):
+                    card = math.floor(random.uniform(1,53))
+                else:
+                    test = 1
+           
+                
+        hands[i] = card
+        i=i+1
+    return hands
+def getPlayerHand(x,y,z):
+    """ x is player number, y is total players, z is hands, finds the two cards that are going to be dealt that are associated
+    with a specific player's hand, returns these cards"""
+    playerHand = [0]*2
+    playerHand[0] = z[x]
+    playerHand[1] = z[x+y]
+    return playerHand
+def getDisplayHand(x):
+"""x is a specific player's hand, finds the numeric value and the suit of the associated with the two numbers 1 to 52 in their hand
+returns the card value i.e. 1-10, J, Q,K,A and the suit i.e. spade, heart,diamond,club"""
+    
+    size = 2*len(x)
+    displayHand = [0]*size
+    i=0
+    j=0
+    while (i<size):
+        cardDisplay = x[j]
+       
+        cardValue = cardDisplay%13 + 2 
+
+        if (cardValue== 11):
+                displayHand[i] = "J"
+        elif (cardValue == 12):
+                displayHand[i] = "Q"
+        elif (cardValue == 13):
+                displayHand[i] = "K"
+        elif (cardValue == 14):
+                displayHand[i] = "A"
+        else:
+            displayHand[i] = cardValue
+        if (cardDisplay <= 13):
+            displayHand[i+1] = "spade"
+        elif (cardDisplay <= 26):
+            displayHand[i+1] = "heart"
+        elif (cardDisplay <= 39):
+            displayHand[i+1] = "diamond"
+        else:
+            displayHand[i+1] = "club"
+        i = i+2
+        j=j+1
+            
+         
+    return displayHand
+def getFlop(x,y):
+"""x is all of the cards that will be dealt, y is the number of players, finds the first three cards to be dealt after each player gets 
+their hand, returns those three cards"""
+    """x is hands and y is total players"""
+    flopStart = y*2 
+    flop = [0]*3
+    i = 0
+    while (i < 3):
+        flop[i] = x[flopStart+i]
+        
+        i=i+1
+    return flop
+def getTurn(x,y):
+"""x is all of the cards that will be dealt, y is the number of players, finds the second to last card that will be dealt, reutrns that
+cards"""
+    turnLoc = y*2 + 3
+    turn = [0]
+    turn[0] = x[turnLoc]
+    return turn        
+def getRiver(x,y):
+"""x is all of the cards that will be dealt, y is the number of players, finds the last card to be dealt, returns that card"""
+    riverLoc = y*2 + 4
+    river = [0]
+    river[0] = x[riverLoc]
+    return river
+def checkHand(x,y):
+    """x is hands, y is total players, checks to see which hand wins using each of the following functions to check what type of hand
+    they hold, returns the result of the checkWinningHand function acting on the array of each of the hand values"""
+    size = len(x)  
+    cardValues = [0]*size
+    cardSuits = [0]*size
+    handStrengths = [0]*size
+    tieBreak = [0]*size
+    for i in range (size):
+        cardValues[i] = x[i]%13
+        cardSuits = math.floor(x[i]/13)
+   
+   
+   
+    handValues = [0]*7
+    holder = [0]*size
+    cardValuesSorted = [0]*size
+    allCards = [0]*5
+    holder2 = [0]*5
+    holder=cardValues
+    
+
+        
+    numpy.sort(holder)
+    '''numpy.sort(holderSuits)'''
+    cardValuesSorted = holder
+    
+       
+    handValues[2] = cardValuesSorted[2*y]
+    handValues[3] = cardValuesSorted[2*y + 1]
+    handValues[4] = cardValuesSorted[2*y + 2]
+    handValues[5] = cardValuesSorted[2*y + 3]
+    handValues[6] = cardValuesSorted[2*y + 4]
+    for h in range (2,7):
+        allCards[h-2] = handValues[h]
+    pairAll = 0
+    twoPairAll = [0]*2
+    threeKindAll = 0
+    fourKindAll = 0
+    straightAll = 0
+    flushAll = 0
+    fullHouseAll = [0]*2
+    straightFlushAll = 0
+    RoyalFlushAll = 0
+    pair1,pair2 = checkPair(allCards)
+    if(pair1 != 0):
+        pairAll = 15 
+           
+        if (pair1 > 1):
+            threeKindAll = 120 
+              
+            if (pair1 > 2):
+                fourKindAll = 2000 
+                   
+        if(pair2 != 0 and pair1 == 0):
+            pairAll = 15 + handValues[1]
+         
+            if (pair2 > 1):
+                threeKindAll = 120 
+                
+                if (pair2 > 2):
+                    fourKindAll = 2000 
+                   
+        if(pair1 !=0 and pair2!=0):
+            twoPairAll[0] = 45 
+           
+            if(threeKindAll !=0):
+                fullHouseAll[0] =  1000 
+               
+        """ straightTrue= checkStraight(handValues)
+        straightAll = 250 + checkStraight(allCards)
+        flush, flushCards = checkFlush(x,allCards,i,y)
+        flushAll = 500+flush
+        if(straight and flush != 0):
+            straightFlushAll = checkStraightFlush(flushCards)
+            straightFlushAll = straightFlushAll + 4000
+            if(straightFlush != 0):
+                royalFlush= checkRoyalFlush(straightFlush)
+                royalFlush = 10000 + royalFlush"""
+    g = 0
+    while g <5:
+       
+       handValues[g+2] = cardValuesSorted[(2*y) + g]
+      
+       g= g+1
+       
+    person = 1  
+    for j in range (y):
+        pair = pairAll
+        twoPair =twoPairAll
+        threeKind = threeKindAll
+        fullHouse =fullHouseAll
+        fourKind = fourKindAll
+        straight = straightAll
+        flush = flushAll
+        straightFlush = straightFlushAll
+        royalFlush = RoyalFlushAll
+        highCard = 0  
+        flushSuit = 0
+        SfSuit = 0
+        RfSuit = 0
+        flushCards=[0]*5
+        
+        
+        playerHand = getPlayerHand(j, y, cardValues)
+        handValues[0] = playerHand[0]
+        handValues[1] = playerHand[1]
+        pair1,pair2 = checkPair(handValues)
+        if(pair1 != 0 ):
+            pair = pair + 15 + handValues[0]
+            
+            print ("Player " +str(person) + " has a pair of " + str(handValues[0]))
+            if (pair1 > 1):
+                threeKind = threeKind + 120 + handValues[0]
+                print ("Player " + str(person) + " has three " + str(handValues[0]))
+                if (pair1 > 2):
+                    fourKind = fourKind+ 2000 + handValues[0]
+                    print ("Player " + str(person) + " has four " + str(handValues[0]))
+        if(pair2 != 0 and pair == 0):
+            pair = pair + 15 + handValues[1]
+         
+            print ("Player " +str(person) + " has a pair of " + str(handValues[1]))
+            if (pair2 > 1):
+                threeKind = threeKind + 120 + handValues[1]
+                print ("Player " + str(person) + " has three " + str(handValues[1]))
+                if (pair2 > 2):
+                    fourKind = fourKind + 2000 + handValues[1]
+                    print ("Player " + str(person) + " has four " + str(handValues[1]))
+        if(pair1 !=0 and pair2!=0):
+            twoPair[0] = twoPair[0] + 45 + max(handValues[0],handValues[1])
+            
+            print ("Player " + str(person) + " has two pair of " + str(handValues[0]) + " and " + str(handValues[1]))
+            twoPair[1] = min(handValues[0],handValues[1])
+            if(threeKind !=0):
+                fullHouse[0] =  fullHouse[0] + 1000 + (threeKind- 120)
+                print (" Player " + str(person) + "has a full house")
+                if ((threeKind - 120 == handValues[0])):
+                    spare = handValues[0]
+                else:
+                    spare = handValues[1]
+                fullHouse[1] = spare
+        
+        straightTrue = checkStraight(handValues)
+        straight = straight + 250 + straightTrue
+        flush,flushCards = checkFlush(x,cardValues,j,y)
+        flush = 500+flush
+        if(straight and flush != 0):
+            straightFlush = checkStraightFlush(flushCards)
+            straightFlush = straightFlush + straightFlush + 4000
+            if(straightFlush != 0):
+                royalFlush= checkRoyalFlush(straightFlush)
+                royalFlush = royalFlush + 10000 + royalFlush
+        highCard = checkHighCard(handValues)
+        print ("Player " + str(person) + " has a high card of " + str(highCard))
+        handStrengths[j] = highCard+ pair+ twoPair[0]+ threeKind+fullHouse[0]+fourKind+straight+flush+straightFlush+royalFlush 
+        person = person + 1
+        
+        '''tieBreak = sum(flushSuit, SfSuit, RfSuit)'''
+        '''tieBreakValue = sum(twoPair[1], fullHouse[1])'''
+    return checkWinningHand(handStrengths)  
+def checkHighCard(x):
+"""takes in a player's hand,  find the higher card, return that cards value"""
+    high = max(x[0], x[1])
+    
+    return high
+    
+def checkPair(x):
+"""takes in the values of the cards in play, checks to see how many pairs or higher sets there are, returns the number of pairs of each card"""
+     """ x is the set of relevant cards"""
+     card1 = x[0]
+     card2 = x[1]
+     numberOfPairs1 = 0
+     numberOfPairs2 = 0 
+     
+     if(card1==card2):
+         numberOfPairs1 = 1
+         for p in range(2,len(x)):
+             if (card1 == x[p]):
+                 numberOfPairs1 = numberOfPairs1 + 1
+             return numberOfPairs1,0
+     for o in range (2,len(x)):
+         if (card1 == x[o]):
+             numberOfPairs1 = numberOfPairs1 + 1
+        
+     for w in range (2,len(x)):
+        if (card2 == x[w]):
+            numberOfPairs2 = numberOfPairs2 + 1
+     o = 0
+     w = 0
+     return numberOfPairs1, numberOfPairs2
+ 
+def checkFlush(x,y,z,a):
+    '''x is the set of the unaltered numbers, y is unsorted card values, z is the player number, a is total plahers,'''
+   
+    count = 0
+    countTotal = 0
+    suits = [0]*(7)
+    hand = getPlayerHand(z,a,y)
+    flushCards = [0]*7
+    for i in range ((2*a),(2*a + 5)):
+        suits[i-((2*a)-2)] = math.floor(x[i]/13)
+    suits[0] = hand[0]
+    suits[1] = hand[1]
+    for k in range (4):
+        for q in range (7):
+            if(suits[q] == k):
+                count = count + 1 
+                flushCards[q] = y[q]
+        q = 0
+        k = 0
+        if (count >=3):
+            if(count < 5):
+                return 0,[0]*5 
+            else:
+                return max(flushCards),flushCards
+        countTotal = countTotal + count 
+        if (countTotal >=3):
+            return 0,[0]*5 
+        count = 0
+def checkStraight(x):
+    ''' x is set of sorted values, checks to see if each player has a straight, returns 1 if they do and 0 if they do not'''
+   
+    count = 1
+    countTotal = 1
+    spot = 0
+    while (spot <6):
+        while(spot<6):
+            
+            """print(spot)
+            print(x[spot])"""
+            if(x[spot] +1 != x[spot+1]):
+                spot1 = spot+1
+                spot = 6
+               
+            else:
+                count = count + 1
+                spot = spot + 1 
+            
+        spot = spot1
+        countTotal = countTotal + count
+      
+       
+        if (count >= 3):
+            if (count < 5):
+                return 0
+            else:
+              
+                return 1
+        if (countTotal >= 3):
+            return 0
+        count = 1
+    return 0
+    
+def checkStraightFlush(x):
+"""x is the set of all of the values, checks to see if any player has a straight flush, return 1 if they do or 0 if they do not"""
+    x = numpy.sort(x)
+    for i in range (4):
+        if(x[i] + 1 != x[i+1]):
+            i = 0
+            return 0
+    i = 0
+    return 1
+
+def checkWinningHand(x): 
+""" x is the set of the numerical values assigned to each hand, finds the largest one of these values, returns the location of that value"""
+    win = max(x)
+    winner = [i for i, g in enumerate(x) if g == win]
+    return winner
+    
+    
+        
+    
+    
+def askAction(x,y,z,a):
+    """x is player number, y is current amount to call, z is players current stack, a is bets so far, asks each players what they
+    would like to do with their hand, returns an int describing their response"""
+    toCallForPlayer = toCall - a[x]
+   
+    action = input("Player " + str(x+1) + " your current stack is " + str(z)+ ". The amount to call is " + str(toCallForPlayer) + ". Would you like to fold, call, or raise? (Calling when amount to call is 0 is equivalent to checking)")
+    if (action == "fold"):
+        return 0
+    elif(action == "call"):
+        return 1
+    elif(action == "raise"):
+        return 2
+    else:
+        print("Input cannot be understood. Please enter again.")
+        return askAction(x,y,z,a)
+
+def FlushStraightFlop(hand, flop):
+""" takes in the value of the players hand and the flop, calculates the probability that this player or anyone else this player is against
+will get either a straight or a flush, returns these probabilities"""
+    card1 = hand[0]
+    card1Value = card1%13
+    card1Suit = math.floor(card1/13)
+    card2 = hand[1]
+    card2Value = card2%13
+    highCard = max(card1Value,card2Value)
+    lowCard = min(card1Value, card2Value)
+    card2Suit = math.floor(card2/13)
+    straightPercentAll = 0
+    straightPercentHand = 0
+    flushPercentAll = 0
+    flushPercentHand = 0
+    
+    
+    straight = 0
+    totalStraight = 0
+    spade = 0
+    totalSpade = 0
+    heart = 0
+    totalHeart =0
+    diamond = 0
+    totalDiamond = 0
+    club = 0
+    totalClub = 0
+   
+    flopSuit = [0]*5
+    flopValue = [0]*5
+            
+    for k in range (3):
+        flopValue[k] = flop[k]%13
+        flopSuit[k] = math.floor(flop[k]/13)
+    for i in range (3):
+        allValues[2+i] = flopValue[i]
+        allSuits[2+i] = flopSuit[i]
+    flopValue = flopValue.sort
+    flopSuit = flopSuit.sort
+   
+    testCard = 0, holdCard = 0
+    cardsInHigher = 0
+    cardsInLower = 0
+    diffBoth = 0, gapBoth = 0, bothStraight = 0, lowestInBoth = 0, highestInBoth = 0, highBothInsert =0, lowBothInsert =0, lowBoundBoth = 0, highBoundBoth = 0
+    diffHigh = 0, gapHigh = 0, highStraigt = 0, highestSeen = 0, highInsert= 0, highBoundHigh = 0, lowBoundHigh = 0
+    diffLow = 0, gapLow = 0, lowStraight = 0, lowestSeen = 0, lowInsert = 0, highBoundLow = 0, lowBoundLow =0
+    higher = [0]*5
+    lower = [0]*5
+    both[0] = lowCard
+    cardsInBoth = cardsInBoth + 1
+    diffBetweenHand = highCard-LowCard
+    
+    highBoundHigh = highCard+4
+    if(highBoundHigh > 14):
+        highBoundHigh ==14
+    if(highBoundHigh == highCard):
+        highBooundHigh = highBoundHigh - 1
+    lowBoundHigh = highCard - 4
+    if(lowBoundHigh<2):
+         lowBoundHigh = 2
+    if(lowBoundHigh == highCard):
+        lowBoundHigh = lowBound + 1
+    highBoundLow = lowCard+4
+    if(highBoundLow > 14):
+        highBoundLow ==14
+    if(highBoundLow == lowCard):
+        highBoundLow = highBound -1
+    lowBoundLow = lowCardLow - 4
+    if(lowBoundLow<2):
+        lowBoundLow = 2
+    if(lowBoundLow == lowCard):
+        lowBoundLow = lowBoundLow + 1
+    cardsInBoth = cardsInBoth + 1
+    highBoundBoth = highCard + 4 - diffBetweenHand
+    if(highBoundBoth > 14):
+        highBoundBoth =14
+    if(highBoundBoth == highCard):
+        highBoundBoth = highBoundBoth - 1
+    lowBoundBoth = lowCard - 4 + diffBetweenHand
+    if(lowBoundBoth <2):
+        lowBoundBoth =2
+    if(lowBoundBoth == lowCard):
+        lowBoundBoth = lowBoundBoth +1
+        both[0] = lowCard
+        cardsInBoth = cardsInBoth + 1
+    
+    
+    
+    for j in range (3):
+        testCard = flopValue[j]
+        if (highBound>= testCard and lowBound <= testCard):
+            if(testCard>highCard and highInsert ==0):
+                higher[cardsInHigher] = highCard
+                highInsert = 1
+                cardsInHigher = cardsInHigher+1
+            if(higher[cardsInHigher] != testCard):
+               higher[cardsInHigher] = testCard
+               cardsInHigher = cardsInHigher + 1
+        
+        elif (lowBound <= testCard and highBound > testCard):
+            if(testCard > lowCard and lowInsertLow == 0):
+                lower[cardsInLower] = lowCard
+                lowInsert = 1
+                cardsInLower = cardsInLower + 1
+            if(cardsInLower ==0):
+                lowestSeen = testCard
+            if(lower[cardsInLower] != testCard):
+                lower[cardsInLower] = testCard
+                cardsInLower = cardsInLower + 1
+        
+        if(diffBetweenHand <= 4):
+            if(lowBothInsert ==0):
+                both[cardsInBoth] = lowCard
+                cardsInBoth = cardsInBoth + 1
+            if(testCard>highCard and highInsertBoth ==0):
+                both[cardsInBoth] = highCard
+                cardsInBoth = cardsInBoth + 1
+            
+            if(testCard < highAllowed and testCard > lowAllowed):
+                if(testCard>lowCard and lowBothInsert ==0):
+                    both[cardsInBoth] = lowCard
+                    cardsInBoth = cardsInBoth + 1
+                    lowBothInsert = 1
+                if(testCard>highCard and highBothInsert ==0):
+                    both[cardsInBoth] = highCard
+                    cardsInBoth = cardsInBoth +1
+                    highBothInsert = 1
+                if(both[cardsInBoth] != testCard):
+                    both[cardsInBoth] = testCard
+                    cardsInBoth = cardsInBoth + 1
+               
+   
+    if (lowInsert ==0):
+        lower[cardsInLower] = lowCard
+        cardsInLower= cardsInLower +1
+    if(highInsert == 0):
+        higher[cardsInHigher] = highCard
+        cardsInHigher=cardsinHigher + 1
+    avaiableCards = 0
+    highestSeen = higher[cardsInHigher-1]
+    highestInBoth = both[cardsInBoth -1]
+    lowestSeen = lower[0]
+    lowestInBoth = both[0]
+    diffBoth = 5 - cardsInBoth
+    diffHigh = 5 - cardsInHigh
+    diffLow = 5 - cardsInLow
+    if(cardsInHigher >= 3):
+        for m in range (1,cardsInHigher):
+            gapHigh = gapHigh + higher[m] - holdCard[m-1] - 1
+        higherStraight = 5 - cardsInHigher - gapHigh +1
+    totalStraights = higherStriaght
+    if(card1 != card2):
+        if(cardsInLower >=3):
+            for n in range (1,cardsInLower):
+                gapLow = gapLow + lower[n] - lower[n-1] - 1
+            lowerStraight = 5 - cardsInLower - gapLow + 1
+        if(cardsInBoth >= 3):
+            for r in range (1,cardsInBoth):
+                gapBoth = gapBoth + both[r] - both[r-1]
+                bothStraight = 5 - cardsInBoth - gapBoth + 1
+        lowerStraight = lowerStraight -(lowestInBoth - lowestSeen)
+        higherStraight = higherStraight - (highestSeen - highestInboth)
+    straightHighPercent = 0, straightLowPercent = 0, straightBothPercent = 0
+    for w in range (3,5):
+        if(w == cardsInhigher):
+            straightHighPercent = 1
+            cardsNeeded = 5 - w
+            availableCards = 4*cardsNeeded
+            for d in range (cardsNeeded):
+                straightHighPercent = float(straightHighPercent)*float(float((avaiableCards))/float((47-d)))
+                avaiableCards = avaiableCards - 4
+            if(cardsNeeded !=0):
+                straightHighPercent = straightHighPercent*2
+        if(w == cardsInLower):
+            straightLowPercent = 0
+            cardsNeeded = 5 - w
+            availableCards = 4*cardsNeeded
+            for e in range (cardsNeeded):
+                straightLowPercent = float(straightLowPercent)*float(float((avaiableCards))/float((47-e)))
+                avaiableCards = avaiableCards - 4
+            if(cardsNeeded !=0):
+                straightLowPercent = straightLowPercent*2
+        if(w==cardsInBoth):
+            straightBothPercent = 0
+            cardsNeeded = 5 - w
+            availableCards = 4*cardsNeeded
+            for d in range (cardsNeeded):
+                straightBothPercent = float(straightBothPercent)*float(float((avaiableCards))/float((47-d)))
+                avaiableCards = avaiableCards - 4
+            if(cardsNeeded != 0):
+                straightBothPercent = straightBothPercent*2
+    straightHandPercent = (float(higherStraight)*straightHighPercent) + (float(lowerStraight)*straightLowerPercent) + (float(bothStraight)*straightBothPercent)
+    
+    flushSpade = 0, flushHeart = 0, flushDiamond = 0, flushClub = 0, 
+    flushSpadePercent = 0, flushHeartPercent = 0, flushDiamondPercent = 0, flushClubPercent = 0
+    if(card1Suit == card2Suit):
+        if(card1Suit == 0):
+            totalSpade = totalSpade + 2
+        elif (card1Suit ==1):
+            totalHeart = totalHeart + 2
+        elif (card1Suit ==2):
+            totalDiamond = totalDiamond + 2
+        else:
+            totalClub = totalClub + 2
+    else:
+        if(card1Suit == 0):
+            totalSpade = totalSpade + 1
+        elif (card1Suit ==1):
+            totalHeart = totalHeart + 1
+        elif (card1Suit ==2):
+            totalDiamond = totalDiamond + 1
+        else:
+            totalClub = totalClub + 1
+        if(card2Suit == 0):
+            totalSpade = totalSpade + 1
+        elif (card2Suit ==1):
+            totalHeart = totalHeart + 1
+        elif (card2Suit ==2):
+            totalDiamond = totalDiamond + 1
+        else:
+            totalClub = totalClub + 1
+    for s in range (3):
+        if(flopSuit[s] == 0):
+            totalSpade = totalSpade + 1
+            spade = spade + 1
+        elif(flopSuit[s] ==1):
+            totalHeart = totalHeart +1
+            heart = heart + 1
+        elif(flopSuit[s] == 2):
+            totalDiamond = totalDiamond + 1
+            diamond = diamond +1
+        else:
+            totalClub = totalClub+1
+            club = club + 1
+    if(totalSpade >=3):
+        flushSpadePercent = 1
+        flushSpade = 5 - totalSpade
+        availableCards = 13 - totalSpade
+        for p in range(flushSpade):
+            flushSpadePercent = float(flushSpadePercent)*float((float(availableCards)/float(47-p)))
+            availableCards = availableCards - 1
+    if(totalHeart >=3):
+        flushHeartPercent = 1
+        flushHeart = 5 - totalHeart
+        availableCards = 13 - totalHeart
+        for p in range(flushHeart):
+            flushHeartPercent = float(flushHeartPercent)*float((float(availableCards)/float(47-p)))
+            availableCards = availableCards - 1
+    if(totalDiamond >=3):
+        flushDiamondPercent = 1
+        flushDiamond = 5 - totalDiamond
+        availableCards = 13 - totalDiamond
+        for p in range(flushDiamond):
+            flushDiamondPercent = float(flushDiamondPercent)*float((float(availableCards)/float(47-p)))
+            availableCards = availableCards - 1
+    if(totalClub >=3):
+        flushClubPercent = 1
+        flushClub = 5 - totalClub
+        availableCards = 13 - totalClub
+        for p in range(flushClub):
+            flushClubPercent = float(flushClubPercent)*float((float(availableCards)/float(47-p)))
+            availableCards = availableCards - 1
+    flushHandPercent = flushClub + flushDiamond + flushHeart + flushSpade
+    
+    flushClubPercent =0, flushSpadepercent =0, flushHeartPercent =0, flushDiamondPercent = 0
+    if(spade>=1):
+        flushSpadePercent = 1
+        flushSpade = 5 - spade 
+        avaialbleCards = 13 - totalSpade
+        for t in range (flushSpade):
+            flushSpadePercent = float(flushSpadePercent)*float(float(availableCards)/float(47-t))
+            availableCards = availableCards -1
+        flushSpadePercent = flushSpadePercent*6
+    if(heart>=1):
+        flushHeartPercent = 1
+        flushHeart = 5-heart
+        availableCards = 13 - totalHeart
+        for g in range (flushHeart):
+            flushHeartPercent = float(flushHeartPercent)*float(float(availableCards)/float(47-g))
+            availableCards = availableCards - 1
+        flushHeartPercent = flushHeartPercent*6
+    if(diamond >= 1):
+        flushDiamondPercent = 1
+        flushDiamond = 5 - diamond
+        availableCards = 13 - totalDiamond
+        for b in range (flushDiamond):
+            flushDiamondPercent = float(flushDiamondPercent)*float(float(availableCards)/float(47-b))
+            availableCards = availableCards - 1
+    if(club >= 1):
+        flushClubPercent = 1
+        flushClub = 5 - club
+        availableCards = 13 - totalClub
+        for c in range (flushClub):
+            flushClubPercent = float(flushClubPercent)*float(float(availableCards)/float(47-c))
+            availableCards = availableCards - 1
+        flushClubPercent = flushClubPercent*6
+    flushAllPercent = flushClubPercent + flushHeartPercent + flushSpadePercent + flushDiamondPercent
+    
+    lowToMid = 0, midToHigh = 0, lowToHigh = 0, threeCardValues = 0, fractionOfThreeCardValues = 0
+    numberOfOneKnown = 0, numberOfTwoKnown = 0, numberOfThreeKnown = 0
+    probOfDiffStraights = [1]*3
+    lowToMid = flop[1] - flop[0]
+    midToHigh = flop[2] - flop[1]
+    lowToHigh = flop[2] - flop[0]
+    numberOfOneKnown = lowToMid
+    numberOfThreeKnown = 5 - lowtoHigh
+    numberOfTwoKnown = 5 - numberOfThreeKnown - numberOfOneKnown
+    for spotLook in range (3):
+        threeCardValues = 0
+        if(card1Value > flop[spotLook] -4 and card1Value < flop[spotLook] + 4 and card1Value!= flop[spotLook]):
+            threeValueCards = threeValueCards + 1
+        if(card1Value != cardValue2):
+            if(card2Value > flop[spotLook] -4 and card2Value < flop[spotLook] + 4 and card2Value!= flop[spotLook]):
+                threeCardValues = threeCardValues+1
+        fractionOfThreeCardValues = float(float(threeCardValues)/float(4))
+        availableCards = (4-spotLook)*4 - threeCardValues
+        for one in range (4-spotLook):
+            probOfDiffStraights[spotLook] = float(probOfDiffStraights[spotLook])*float(availableCards/(47-one))
+            availableCards = float(float(availableCards) - (float(availableCards)*float((fractionOfThreeCardValues))*3) - (float(availableCards)*float(1-fractionOfThreeCardValues)*4))
+    straightAllPercent = float(probOfDiffStraights[0])*float(numberOfOneKnown) + float(probOfDiffStraights[1])*float(numberOfTwoKnown) + float(numberOfThreeKnown)*float(probOfDiffStraights[2])
+    straightAllPercent = straightAllPercent*6
+    return straightAllPercent,straightHandPercent, flushAllPercent, flushHandPercent
+
+def probFlopPair (hand, flop):
+""" takes in the value of the players hand and the flop cards, approximates the percent of a pair or higher set or a full house using 
+strategy from poker players, also calculates the probability that anyone could get these hands from this flop, returns each of the 
+probabilities"""
+    card1 = hand[0]
+    card1Value = card1%13    
+    card1Value = math.floor(card1/13)
+    card2 = hand[1]
+    card2Value = card2%13    
+    card2Value = math.floor(card2/13)
+    highCard = max(card1Value, card2Value)
+    lowCard = min(card1Value, card2Value)
+    probOfPairHigh = 0, probOfPairLow = 0, fullHouseProb = 0, probThreeOfKindHigh = 0, probFourOfKindHigh =0, lowPairWithFlop = 0, highPairWithFlop = 0
+    probThreeOfKindLow= 0, probFourOfKindLow = 0
+    if(card1Value==card2Value):
+        pairProbHigh = 1
+        for i in range (3):
+            if(card1 == flop[i]):
+                pairsWithFlop = pairsWithFlop + 1
+            if(pairsWithFlop == 1):
+                probThreeKind = 1
+                probFourKind = (float(1)/float(47))*(float(45)/float(46)) + (float(46)/float(47))*(float(1)/float(46))
+            elif (pairsWithFlop ==2):
+                probFourKind = 1
+            else:
+                probThreeKind = (float(2)/float(47))*(float(45)/float(46)) + (float(45)/float(47))*(float(2)/float(46))
+                fourKind = 2*(float(2)/float(47))*(float(1)/float(46)) 
+    else:
+        for j in range (3):
+            if(highCard == flop[j]):
+                highPairWithFlop = highPairWithFlop + 1
+            if(lowCard == flop[j]):
+                lowPairWithFLop = lowPairWithFlop + 1
+        if(highPairWithFlop ==0):
+            probOfFourKindHigh = 0
+            probOfThreeKindHigh = 2*(float(3)/float(47))*(float(2)/float(46))
+            probOfPairHigh = (float(3)/float(47))*(float(44)/float(46)) + (float(44)/float(47)*(float(3)/float(46)))
+        elif(highPairWithFlop ==1):
+            probFourOfKindHigh = 2*(float(2)/float(47))*(float(1)/float(46))
+            probThreeOfKindHigh = (float(2)/float(47)*(float(45)/float(46))) + (float(45)/float(47)*(float(2)/float(46)))
+            probPairHigh = 1
+        elif(owPairWithFlop==2):
+            probThreeOfKind = 1
+            probFourOfKind = (float(1)/float(47))*(float(45)/float(46)) + (float(46)/float(47))*(float(1)/float(46))
+        else:
+            probFourOfKind = 1
+        if(lowPairWithFlop ==0):
+            probOfFourKindLow = 0
+            probOfThreeKindLow = 2*(float(3)/float(47))*(float(2)/float(46))
+            probOfPairLow = (float(3)/float(47))*(float(44)/float(46)) + (float(44)/float(47))*(float(3)/float(46))
+        elif(lowPairWithFlop ==1):
+            probFourOfKindLow = 2*(float(2)/float(47))*(float(1)/float(46))
+            probThreeOfKindLow = (float(2)/float(47))*(float(45)/float(46)) + (float(45)/float(47))*(float(2)/float(46))
+            probPairHigh = 1
+        elif(lowPairWithFlop==2):
+            probThreeOfKindLow = 1
+            probFourOfLow = (float(1)/float(47))*(float(45)/float(46)) + (float(46)/float(47))*(float(1)/float(46))
+        else:
+            probFourOfKindLow = 1
+    probOfFullHouse = float(probThreeOfKindHigh)*float(probPairLow) + float(probThreeOfKindLow)*float(probPairHigh)
+    
+    pairsInFlop = 0, probPairAll = 0, probThreeOfKindAll = 0, probFourOfKindAll = 0, probFullHouseAll =0
+    if(flop[0] == flop[1]):
+        pairsInFlop = 1
+    if(flop[0] == flop[2]):
+        pairsInFlop = pairsInFlop + 1
+    if(flop[0] == flop[1]):
+        pairsInFlop = pairsInFlop + 1
+    if(pairsInFlop ==0):
+        probPairAll = float(4)*(float(4)/float(47))*(float(3)/float(46))*(float(43)/float(45))*(float(42)/float(44))
+        probThreeOfKindAll = float(4)*(float(4)/float(47))*(float(3)/float(46))*(float(43)/float(45))*(float(42/float(44)))
+        probFourOfKindAll = float(4)*(float(4)/float(47))*(float(3)/float(46))*(float(2)/float(45))*(float(1)/float(44))
+    if(pairsInFlop ==1):
+        probPairAll = 1
+        probThreeOfKindAll = float(4)*(float(2)/float(47))*(float(45)/float(46))*(float(44)/float(45))*(float(43)/float(44))
+        probFourOfKindAll = float(4)*(float(2)/float(47))*(float(1)/float(46))
+    if(pairsInFlop ==2):
+        probThreeOfKindAll = 1
+        probFourOfKindAll = float(4)*(float(1)/float(47))
+    probFullHouseAll = float(probPairAll)*float(probThreeOfKindAll)
+    
+    return probPairLow, probPairHigh, probThreeOfKindLow, probThreeOfKindHigh, probFourOfKindLow, probFourOfKindHigh, probFullHouse, probPairAll, probThreeOfKindAll, probFourOfKindAll, probFullHouseAll  
+               
+def probWinningInitial(hand):
+  """ takes in the value of the players starting hand, finds its probability of winning from fixed values acquired from known 
+  Texas Hold 'Em win rates, returns the probability"""+
+    card1 = hand[0]
+    card1Value = card1%13 + 2
+    card1Suit = math.floor(card1/13)
+    card2 = hand[1]
+    card2Value = card2%13 + 2
+    card2Suit = math.floor(card2/13)
+    highcard = max(card1Value,card2Value)
+    lowCard = min(card1Value,card2Value
+      if (card1Value == card2Value):
+          for i in range (2,15):
+              if(i<=6):
+                  return .35
+              elif(i<=9):
+                  return .45
+              elif(i<=11):
+                  return .55
+              elif (i == 12):
+                  return .65
+              elif(i == 13):
+                  return .75
+              else:
+                  return .85
+      else:
+          if(card1Suit == card2Suit):
+              if(card1Value != 14 and card2Value!= 14):
+                  if (lowCard <=9):
+                      if (highCard == 13):
+                          return .37
+                      else:
+                          return .25
+                  else:
+                      if(highCard == 13):
+                          if (lowCard == 12):
+                              return .4
+                          else:
+                              return.38
+                      elif(highCard ==12):
+                          if(lowCard==9):
+                              return .33
+                          else:
+                              return .27
+                      else:
+                          return .37
+              else:
+                  if (lowCard == 12):
+                      return .5
+                  if (lowCard == 13):
+                      return .7
+                  if(lowCard == 11):
+                      return .4
+                  if(lowCard == 10):
+                      return .38
+                  else:
+                      return .36
+
+          else:
+              if(card1Value != 14 and card2Value!= 14):
+                  if (lowCard <=9):
+                      if (highCard == 13):
+                          return .34
+                      else:
+                          return .22
+                  elif:
+                      if(highCard == 13):
+                          if (lowCard == 12):
+                              return .37
+                          else:
+                              return .35
+                      elif(highCard ==12):
+                          if(lowCard==9):
+                              return .30
+                          else:
+                              return .24
+                      else:
+                          return .34
+               else:
+                  if (lowCard == 12):
+                      return .47
+                  if (lowCard == 13):
+                      return .67
+                  if(lowCard == 11):
+                      return .37
+                  if(lowCard == 10):
+                      return .35
+                  else:
+                      return .33
+
+
+
+
+                    
+                
+        
+            
+     
+           
+
+
+
+
+"""totalPlayers = int(input("How many players are there? "))"""
+totalPlayers = 4
+stacks = [100]*totalPlayers
+bankrupt = [0]*totalPlayers
+""" if bankrupt -> 1"""
+inPlay = totalPlayers
+
+while (inPlay > 1):
+    inHand = bankrupt
+    print(inHand)
+    handsNeeded = 0
+    
+    for w in range(totalPlayers):
+        handsNeeded = handsNeeded + bankrupt[w]
+    handsNeeded = totalPlayers - handsNeeded
+    print(handsNeeded)
+    currentHands = [0]*handsNeeded
+    currentHands = cardGenerator(handsNeeded)
+    toCall = 0
+    pot = 0
+    moveOn = 0
+    for k in range (totalPlayers):
+        print(k)
+        hand = getPlayerHand(k, totalPlayers, currentHands)
+        hand = getDisplayHand(hand)
+        print (hand)
+        
+    count = -1
+    for i in range (4):
+        moveOn = 0
+        count = count + 1
+        raiser = -1
+        toCall = 0
+        bets = [0]*(len(inHand))
+       
+        while(moveOn < len(inHand)):
+          moveOn = 0
+          addToMoveOn = 0
+          
+          for j in range(len(inHand)):
+              
+              if (j == raiser):
+                  addToMoveOn = addToMoveOn + 1
+                  
+              else:
+                  if(inHand[j] == 0):
+                      action = -1
+                      currentStack = stacks[j]
+                      
+                     
+                      action = askAction(j, toCall,currentStack,bets)
+                      if (action == 0):
+                          inHand[j] = 1
+                          addToMoveOn = addToMoveOn  +1
+                          
+                          
+                      elif (action == 1):
+                          stacks[j] = stacks[j] - toCall
+                          if(stacks[j] <=0):
+                              print("You are all in.")
+                              inHand[j] =2
+                          addToMoveOn = addToMoveOn + 1
+                         
+                          pot = pot + toCall
+                          bets[j] = bets[j]+toCall
+                      elif (action ==2):
+                          raiseAmount = int(input("By how much would you like to raise?"))
+                          toCall = toCall + raiseAmount
+                          stacks[j] = stacks[j] - toCall
+                          addToMoveOn = 1
+                         
+                          raiser = j
+                          if(stacks[j] == 0):
+                              print("You are all in.")
+                              inHand[player] = 2
+                          
+                          elif(stacks[j] < 0):
+                              overBy = numpy.abs(stacks[j])
+                              
+                              toCall = toCall - overBy
+                            
+                              raiseAmount = raiseAmount - overBy
+                              
+                            
+                              print("You raised more than you have.You're raise was reduced to " + str(raiseAmount) + ". You are all in.")
+                              inHand[j] = 2
+                          pot = pot + toCall
+                          bets[j] = bets[j]+toCall
+                  else:
+                    
+                    addToMoveOn = addToMoveOn +1
+          print ("pot" + str(pot))
+          
+          moveOn = addToMoveOn + moveOn
+          
+                
+        if(count == 0):
+            flop = getFlop(currentHands, totalPlayers)
+            flop = getDisplayHand(flop)
+            print ("Flop " + str(flop))
+        elif (count ==1):
+           turn = getTurn(currentHands, totalPlayers)
+           turn = getDisplayHand(turn)
+           print ("Turn " + str(turn))
+        elif(count==2):
+           river = getRiver(currentHands, totalPlayers)
+           river = getDisplayHand(river)
+           print ("river" + str(river)) 
+        else:
+             numberToCheck = 0
+             spot = 0
+             playerToCheck = [-1]*(totalPlayers)
+             for t in range (totalPlayers):
+                 if (inHand[t] != 1):
+                     numberToCheck = numberToCheck + 1
+                     playerToCheck[spot] = t
+                     spot = spot + 1
+                     
+                     
+             handsToCheck = [0]*(numberToCheck*2 + 5)
+             
+             for m in range (numberToCheck):
+                 check = playerToCheck[m]
+                 handsToCheck[m] = currentHands[check]
+                 handsToCheck[m + totalPlayers] = currentHands[check + totalPlayers]
+             for n in range (5):
+                 handsToCheck[numberToCheck*2 + n] = currentHands[totalPlayers*2 + n]
+             
+             winners = checkHand(handsToCheck, numberToCheck)
+             for r in range(len(winners)):
+                 convert = winners[r]
+                 winners[r] = playerToCheck[convert] + 1
+             print("The winner(s) of the pot are " + str(winners) +". The pot was worth " + str(pot))
+             if(len(winners)==1):
+                 winner = winners[0]
+                 stacks[winner-1]= stacks[winner-1] + pot
+              
+             else:
+                 numberOfWinners = len(winners)
+                 splitOfPot = math.floor(pot/numberOfWinners)
+                 for s in range (len(winners)):
+                     winner = winners[s]
+                     print(winner)
+                     stacks[winner-1] = stacks[winner-1] + splitOfPot
+               
+             for h in range (totalPlayers):
+                if(stacks[h] <= 0):
+                    bankrupt[h] = 1
+                    inPlay = inPlay - 1
+                    print ("Player " +str(h+1)+ " is out.")
+   
+winner = -1
+check = 0
+while (winner == -1):
+    if (bankrupt[check] != 1):
+        winner = check+1
+    check = check + 1
+print ("Congratualtions! PLayer " + str(winner) + " has won.")
+    
+                
+                    
+             
+        
