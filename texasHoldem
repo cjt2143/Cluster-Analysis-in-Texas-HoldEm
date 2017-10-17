@@ -857,8 +857,7 @@ def probWinningInitial(hand):
               if(card1Value != 14 and card2Value!= 14):
                   if (lowCard <=9):
                       if (highCard == 13):
-                          return .34
-                      else:
+                          return .34                      else:
                           return .22
                   elif:
                       if(highCard == 13):
@@ -885,7 +884,128 @@ def probWinningInitial(hand):
                   else:
                       return .33
 
+def flopStraightFlush(hand, flop, hand?, anyone?):
+"""takes in the player's hand, the flop cards, if there is a chance of the player having a straight flush (hand? = 1), 
+ is there a chance for anyone to have a straight flush (anyone? = 1), calcualtes the probability of both the player and anyone 
+ getting a straight flush, returns those values"""
+ probStraightFlush = 0
+ probStraightFlushAll = 0
+ if(hand? ==1):
+    card1 = hand[0]
+    card2 = hand[1]
+    card1Value = card1%13
+    card1Suit = math.floor(card1/13)
+    card2Value = card2%13
+    card2Suit = math.floor(card2/13)
+    highCard = max(card1Value, card2Value)
+    lowCard = min(card1Value, card2Value)
+    suitMatch1 = [15]*5
+    suitMatch2 = [15]*5
+    total1 = 0, total2 = 0
+    flop = flop.sort
+    flopSuits  = [0]*3
+    flopValues = [0]*3
+    for j in range (3):
+        flopValues[j] = flop[i]%13
+        flopSuits[j] = math.floor(flop[i]/13)
+    
+    if(card1Suit == card2Suit):
+        suitMatch1[0] = lowCard
+        suitMatch2[1] = highCard
+        total1 = 2
+    else:
+        suitMatch1[0] = card1Value
+        total1 = 1
+        suitMatch2[0] = card2Value
+        total2 = 1
+    for i in range (3):
+        test1 =0, test2 = 0
+        for n in range (total1):
+            if(flopValue[i] == suitMatch1[n]):
+                test = 1
+      
+        if(card1Suit == flopSuit[i] and test == 1):
+            suitMatch1[total1] = flopValue[i]
+            total1 = total1 + 1
+        if(card1Suit != card2Suit):
+            for m in range (total2):
+                if(flopValue[i] == suitMatch2[m]):
+                    test2 = 1
+            if(flopSuit[i] == card2Suit and test == 2):
+               suitMatch2[total2] = flopValue[i]
+               total2 = total2 +1
 
+    suitMatch1 = suitMatch1.sort
+    suitMatch2 = suitMatch2.sort
+    if(total1==3):
+        if(suitMatch1[0] + 5 > suitMatch1[total1]):
+            possibleStraightFlush1 = 1
+            probStraightFlush = float(possibleStraightFlush)*(float(1)/float(47))*(float(1)/float(46)
+    elif(total1==4):
+        if(suitMatch1[total1] - suitMatch1[0] ==3):
+            probStraightFlush = float(2)*(float(1)/float(47) + float(1)/float(46))
+        elif(suitMatch1[total1] - suitMatch1[0] ==4):
+            probStraightFlush = float(2)*((float(1)/(47))*float(2)/float(46)) + (float(2)/float(47))*(float(1)/float(46))
+        elif(suitMatch1[total1] - suitMatch1[0] == 5):
+            probStraightFlush = float(2)*((float(1)/float(47))*(float(1)/float(46))
+        else:
+            probStraightFlush = 0
+        
+    elif(total1 == 5):
+        if(suitMatch1[0] +4 == suitMatch1[total1]):
+            probStraightFlush = 1
+        elif(suitMatch1[total1] - suitMatch1[0] == 5):
+            probStraightFlush = ((float(1)/float(47)) + (float(1)/float(46)))
+        elif(suitMatch1[total1] - suitMatch1[0] == 6):
+            probStraightFlush = float(1)/float(47) + float(1)/float(46) + (float(1)/float(47))*(float(1)/float(46))
+        elif(suitMatch1[total1] - suitMatch1[0] >= 7):
+            if(suitMatch1[total1] - suitMatch1[0] ==3):
+                probStraightFlush = float(2)*(float(1)/float(47) + float(1)/float(46))
+            elif(suitMatch1[total1] - suitMatch1[0] ==4):
+                probStraightFlush = float(2)*((float(1)/(47))*float(2)/float(46)) + (float(2)/float(47))*(float(1)/float(46))
+            elif(suitMatch1[total1] - suitMatch1[0] == 5):
+                probStraightFlush = float(2)*((float(1)/float(47))*(float(1)/float(46))
+            else:
+                probStraightFlush = 0
+    if(card1Suit != card2Suit):
+        if(total2==3):
+            if(suitMatch2[0] + 5 > suitMatch2[total2]):
+                possibleStraightFlush1 = 1
+                probStraightFlush = probStraightFlush + float(possibleStraightFlush)*(float(1)/float(47))*(float(1)/float(46)
+        elif(total2==4):
+            if(suitMatch2[total2] - suitMatch2[0] ==3):
+                probStraightFlush = probStraightFlush + float(2)*(float(1)/float(47) + float(1)/float(46))
+            elif(suitMatch2[total2] - suitMatch2[0] ==4):
+                probStraightFlush = probStraightFlush + float(2)*((float(1)/(47))*float(2)/float(46)) + (float(2)/float(47))*(float(1)/float(46))
+            elif(suitMatch2[total2] - suitMatch2[0] == 5):
+                probStraightFlush = probStraightFlush + float(2)*((float(1)/float(47))*(float(1)/float(46))
+            else:
+                probStraightFlush = 0
+        
+        elif(total2 == 5):
+            if(suitMatch2[0] +4 == suitMatch2[total2]):
+                probStraightFlush = 1
+            elif(suitMatch2[total2] - suitMatch2[0] == 5):
+                probStraightFlush = probStraightFlush + ((float(1)/float(47)) + (float(1)/float(46)))
+            elif(suitMatch2[total2] - suitMatch2[0] == 6):
+                probStraightFlush = probStraightFlush + float(1)/float(47) + float(1)/float(46) + (float(1)/float(47))*(float(1)/float(46))
+            elif(suitMatch2[total2] - suitMatch2[0] >= 7):
+                if(suitMatch2[total2] - suitMatch2[0] ==3):
+                    probStraightFlush = probStraightFlush + float(2)*(float(1)/float(47) + float(1)/float(46))
+                elif(suitMatch2[total2] - suitMatch2[0] ==4):
+                    probStraightFlush = probStraightFlush + float(2)*((float(1)/(47))*float(2)/float(46)) + (float(2)/float(47))*(float(1)/float(46))
+                elif(suitMatch2[total2] - suitMatch2[0] == 5):
+                    probStraightFlush = probStraightFlush + float(2)*((float(1)/float(47))*(float(1)/float(46))
+                else:
+                    probStraightFlush = probStraightFlush + 0
+        
+         
+            
+    
+            
+            
+            
+    
 
 
                     
