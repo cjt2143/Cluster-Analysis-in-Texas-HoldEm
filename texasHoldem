@@ -458,7 +458,8 @@ def probWinFinal(hand,table):
     print(finalCards)
     for j in range (10000):
         k = 0
-        while (k<2):
+
+    while (k<2):
             stop = 0
             card = math.floor(random.uniform(1,53))
             for n in range(9):
@@ -487,73 +488,33 @@ def ratioMaker(percentDecimal, actualPercent):
     return percentDecimal/actualPercent
 def pointMaker(percentBet, ratio):
     return ([percentBet,ratio])
+def elbowMethod(data,klow,khigh):
+    distortions = []
+    K = range(klow,khigh)
+    for k in K:
+        kmeanModel = KMeans(n_clusters=k).fit(data)
+        kmeanModel.fit(data)
+        distortions.append(sum(numpy.min(cdist(data,kmeanModel.cluster_centers_,'euclidean'),axis=1))/data.shape[0])
+    slopes = [0]*(len(distortions)-1) 
+    slopeTotal = 0
+    for i in range (1,len(distortions)):
+        changeY = distortions[i] - distortions[i-1]
+        changeX = 1
+        slope = changeY/changeX
+        slope = numpy.abs(slope)
+        slopes[i-1] = slope
+        slopeTotal = slope + slopeTotal
+    avgSlope = slopeTotal/(len(slopes))
+    for n in range(len(slopes)):
+        if(slopes[n]<avgSlope):
+            optimalK = n + 1
+            break
+    return optimalK  
+def clustering(data,kValue):
+    kmeanModel = KMeans(n_clusters=kValue).fit(data)
+    kmeanModel.fit(data)
+    return kmeanModel.cluster_centers
 
-
-        
-        
-""" computer"""
-"""def computer(x,y,z,tot, pot, call,stacks,bets,flop=0, turn=0, river=0)     
-    x is player the computer is, y is the spot it is betting, z is its hand, bets is all of the bets s ffar, stacks is all the stacks, pot is the pot value, call is the call value,tot is totalPlayers, flop is flops card, turn is turn cards, river is river cards
-    raiseAmount =0
-    card1= z[0]
-    card1Value = (card1%13 + 2)
-    card1Suit = math.floor(card1/13)
-    card2 = z[1]
-    card2Value = (card2%13 + 2)
-    card2Suit = math.floor(card2/13)
-    if(flop == 0):
-        first = math.floor(tot/4)
-        second = math.floor((3*tot)/4)
-        diff = math.abs(card1-card2)
-        if(card1 <= 4 or card2 <= 4):
-            return 0,0
-        if(card1 !=14 and card2 != 14 and diff >)
-            
-        if(y<=first):
-            if(card1 == 14 or card2 ==14):
-                if(card1 == card2):
-                    if(call ==0):
-                        raiseAmount = math.floor(.1*stack[x])
-                        return 2,raiseAmount
-                else:
-                    if(call >= (.5*pot)):
-                        return 1,0
-                    else:
-                        raiseAmount = math.floor(.5*pot - call)
-                        if(raiseAmount <0):
-                            raiseAmount = math.floor(.1*stack[x])
-                        return 2,raiseAmount
-                if(card2 == 13 or card2 == 12):
-                    if(call == 0):
-                        raiseAmount = math.floor(.05*stacks[x])
-                        return 2,raiseAmount
-                    else:
-                        raiseAmount = math.floor(.1*call)
-                        return 2,raiseAmount
-                if(card1 == 13 or card1 == 12):
-                    if(call == 0):
-                        raiseAmount = math.floor(.05*stacks[x])
-                        return 2,raiseAmount
-                    else:
-                        if(call >= .4*pot):
-                            return 1,0
-                        else:
-                            raiseAmount = math.floor(.4*pot - call)
-                            if(raiseAmount<0):
-                                raiseAmount = math.floor(.05*stack)
-                            return 2,raiseAmount"""
-                        
-                        
-                    
-                
-        
-            
-     
-           
-
-
-
-#totalPlayers = int(input("How many players are there? "))
 totalPlayers = 2
 stacks = [100]*totalPlayers
 bankrupt = [0]*totalPlayers
@@ -561,6 +522,9 @@ bankrupt = [0]*totalPlayers
 inPlay = totalPlayers
 points = [0]*1000
 totalPoints = 0
+if(totalPoints >= 40):
+    numberOfClusters = elbowMethod(points,1,9)
+    centers = clustering(points,numberOfClusters)
 while (inPlay > 1):
     inHand = bankrupt
     handsNeeded = 0
